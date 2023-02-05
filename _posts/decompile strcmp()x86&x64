@@ -1,0 +1,86 @@
+#include <iostream>
+#include <string.h>
+
+int main() {
+	const char *arg1 = "bros before hoes";
+	const char *arg2 = "but not before mom";
+
+	if (strcmp(arg1, arg2) == 0) {
+		std::cout << "strings are same" << std::endl;
+	}
+	else
+	{
+		std::cout << "strings are not the same" << std::endl;
+	}
+
+}
+//below is decompiled assembly from above instruction. done on godbolt
+
+# Compilation provided by Compiler Explorer at https://godbolt.org/
+.LC0: ; local constant 1
+        .string "bros before hoes"
+.LC1:
+        .string "but not before mom"
+.LC2:
+        .string "strings are same"
+.LC3:
+        .string "strings are not the same"
+main:
+        push    rbp
+        mov     rbp, rsp
+        sub     rsp, 16 	; end of prologue
+        mov     QWORD PTR [rbp-8], OFFSET FLAT:.LC0		; initialize firt var-- e.g "bros before hoes"
+        mov     QWORD PTR [rbp-16], OFFSET FLAT:.LC1	; initialize second var-- e.g "but not before mom"
+        mov     rdx, QWORD PTR [rbp-16] ; move 'but not b4 mom' into rdx(accumulator reg)
+        mov     rax, QWORD PTR [rbp-8]	; move 'bros b4 hoes' into rax(arithmetic reg)
+        mov     rsi, rdx ; lco1 into string index reg
+        mov     rdi, rax	; lco0 into destination index reg
+        call    strcmp	; compares two const char ptrs in c++
+        test    eax, eax	; why eax? seems to be left open so as to specifically be used for comparing all things
+        jne     .L2	; if above statment is not equal to eachother go to L2 which will give 'strings are not the same'
+        mov     esi, OFFSET FLAT:.LC2	; move 'strings are same' into string index
+        mov     edi, OFFSET FLAT:_ZSt4cout	; std::cout function into destination index
+        call    std::basic_ostream<char, std::char_traits<char> >& std::operator<< <std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*)/*by knowing that strcmp takes to const char ptrs we can deduce that this is just outputing esi and edi.... note std::endl is also being used. */
+        mov     esi, OFFSET FLAT:_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_
+        mov     rdi, rax
+        call    std::basic_ostream<char, std::char_traits<char> >::operator<<(std::basic_ostream<char, std::char_traits<char> >& (*)(std::basic_ostream<char, std::char_traits<char> >&))
+        jmp     .L3
+.L2:
+        mov     esi, OFFSET FLAT:.LC3	; 'strings not the same' move to string index
+        mov     edi, OFFSET FLAT:_ZSt4cout	; stores std::cout into edi
+        call    std::basic_ostream<char, std::char_traits<char> >& std::operator<< <std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*)
+        mov     esi, OFFSET FLAT:_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_ ;	 std::endl into string index
+        mov     rdi, rax
+        call    std::basic_ostream<char, std::char_traits<char> >::operator<<(std::basic_ostream<char, std::char_traits<char> >& (*)(std::basic_ostream<char, std::char_traits<char> >&))
+.L3:
+        mov     eax, 0	; why do this? likely to clean eax for further down
+        leave
+        ret	; end of func() progluge this and above lines only
+__static_initialization_and_destruction_0(int, int):	this along with L7 and sub_I_main are from the compiler gcc not part of the code
+        push    rbp
+        mov     rbp, rsp
+        sub     rsp, 16	; end of func() prologue
+        mov     DWORD PTR [rbp-4], edi
+        mov     DWORD PTR [rbp-8], esi
+        cmp     DWORD PTR [rbp-4], 1
+        jne     .L7
+        cmp     DWORD PTR [rbp-8], 65535
+        jne     .L7
+        mov     edi, OFFSET FLAT:_ZStL8__ioinit
+        call    std::ios_base::Init::Init() [complete object constructor]
+        mov     edx, OFFSET FLAT:__dso_handle
+        mov     esi, OFFSET FLAT:_ZStL8__ioinit
+        mov     edi, OFFSET FLAT:_ZNSt8ios_base4InitD1Ev
+        call    __cxa_atexit
+.L7:
+        nop
+        leave
+        ret	; end of func()epilogue
+_GLOBAL__sub_I_main:
+        push    rbp
+        mov     rbp, rsp
+        mov     esi, 65535
+        mov     edi, 1
+        call    __static_initialization_and_destruction_0(int, int)
+        pop     rbp
+        ret
