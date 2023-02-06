@@ -1,0 +1,78 @@
+
+#include <iostream>
+#include <string.h>
+
+int main() {
+	char str1[] = "this long string contians chars";
+	if (strlen(str1) >= 3) {
+		printf("she bigger or equal to 3");
+	}
+	else {
+		printf("small than 3");
+	}
+	return 0;
+}
+
+//below is code from above strlen()
+
+.LC0:
+        .string "she bigger or equal to 3"
+.LC1:
+        .string "small than 3"
+main:
+        push    rbp
+        mov     rbp, rsp
+        sub     rsp, 32	;end of x64 prologue
+        movabs  rax, 7957697953217996916	;movabs used moving arbitratry 64bit constants
+        movabs  rdx, 7453010373645639783
+        mov     QWORD PTR [rbp-32], rax	;moving value of rax into rbp offset
+        mov     QWORD PTR [rbp-24], rdx	;moving value of rbp into  rbp offset
+        movabs  rax, 7953754365702923040
+        movabs  rdx, 32495385010446451
+        mov     QWORD PTR [rbp-16], rax
+        mov     QWORD PTR [rbp-8], rdx
+        lea     rax, [rbp-32]
+        mov     rdi, rax
+        call    strlen	;c++ function that takes a char as parameter if used as a variable
+        cmp     rax, 2
+        jbe     .L2	; this is interesting with actual source code we can see that this is compiler optimization
+        mov     edi, OFFSET FLAT:.LC0	;'she bigger or equal to 3'
+        mov     eax, 0	
+        call    printf	; we see this above with edi and eax are parameters of printf, one the string the other the format specifiers
+        jmp     .L3	; leads to gcc specific compiler generated instructions that dont pertain to the original src code
+.L2:
+        mov     edi, OFFSET FLAT:.LC1
+        mov     eax, 0
+        call    printf	; we see string and format specifiers are used as parameters
+.L3:
+        mov     eax, 0
+        leave
+        ret
+__static_initialization_and_destruction_0(int, int):
+        push    rbp
+        mov     rbp, rsp
+        sub     rsp, 16
+        mov     DWORD PTR [rbp-4], edi
+        mov     DWORD PTR [rbp-8], esi
+        cmp     DWORD PTR [rbp-4], 1
+        jne     .L7
+        cmp     DWORD PTR [rbp-8], 65535
+        jne     .L7
+        mov     edi, OFFSET FLAT:_ZStL8__ioinit
+        call    std::ios_base::Init::Init() [complete object constructor]
+        mov     edx, OFFSET FLAT:__dso_handle
+        mov     esi, OFFSET FLAT:_ZStL8__ioinit
+        mov     edi, OFFSET FLAT:_ZNSt8ios_base4InitD1Ev
+        call    __cxa_atexit
+.L7:
+        nop
+        leave
+        ret
+_GLOBAL__sub_I_main:
+        push    rbp
+        mov     rbp, rsp
+        mov     esi, 65535
+        mov     edi, 1
+        call    __static_initialization_and_destruction_0(int, int)
+        pop     rbp
+        ret
